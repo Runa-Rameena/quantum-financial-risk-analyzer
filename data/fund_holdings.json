@@ -1,0 +1,95 @@
+{
+  "VFIAX": {
+    "name": "Vanguard 500 Index Fund",
+    "type": "Equity: Large Cap Blend",
+    "holdings": {
+      "Microsoft Corp (MSFT)": 0.071,
+      "Apple Inc (AAPL)": 0.062,
+      "NVIDIA Corp (NVDA)": 0.061,
+      "Alphabet Inc (GOOGL)": 0.038,
+      "Amazon.com Inc (AMZN)": 0.035,
+      "Meta Platforms Inc (META)": 0.024,
+      "Berkshire Hathaway Inc (BRK.B)": 0.017,
+      "Eli Lilly & Co (LLY)": 0.014,
+      "Broadcom Inc (AVGO)": 0.013,
+      "Tesla Inc (TSLA)": 0.013
+    }
+  },
+  "VTSAX": {
+    "name": "Vanguard Total Stock Market Index Fund",
+    "type": "Equity: Broad Market",
+    "holdings": {
+      "Microsoft Corp (MSFT)": 0.061,
+      "Apple Inc (AAPL)": 0.054,
+      "NVIDIA Corp (NVDA)": 0.052,
+      "Alphabet Inc (GOOGL)": 0.032,
+      "Amazon.com Inc (AMZN)": 0.030,
+      "Meta Platforms Inc (META)": 0.020,
+      "Berkshire Hathaway Inc (BRK.B)": 0.015,
+      "Eli Lilly & Co (LLY)": 0.012,
+      "Broadcom Inc (AVGO)": 0.011,
+      "Tesla Inc (TSLA)": 0.011
+    }
+  },
+  "VIGAX": {
+    "name": "Vanguard Growth Index Fund",
+    "type": "Equity: Large Cap Growth",
+    "holdings": {
+      "Microsoft Corp (MSFT)": 0.125,
+      "Apple Inc (AAPL)": 0.112,
+      "NVIDIA Corp (NVDA)": 0.101,
+      "Amazon.com Inc (AMZN)": 0.062,
+      "Alphabet Inc (GOOGL)": 0.052,
+      "Meta Platforms Inc (META)": 0.045,
+      "Eli Lilly & Co (LLY)": 0.028,
+      "Tesla Inc (TSLA)": 0.024,
+      "Broadcom Inc (AVGO)": 0.021,
+      "Advanced Micro Devices (AMD)": 0.015
+    }
+  },
+  "VGSLX": {
+    "name": "Vanguard Real Estate Index Fund",
+    "type": "Equity: Real Estate (REITs)",
+    "holdings": {
+      "Prologis Inc (PLD)": 0.075,
+      "American Tower Corp (AMT)": 0.068,
+      "Equinix Inc (EQIX)": 0.062,
+      "Simon Property Group Inc (SPG)": 0.045,
+      "Welltower Inc (WELL)": 0.042,
+      "Digital Realty Trust Inc (DLR)": 0.038,
+      "Public Storage (PSA)": 0.035,
+      "Realty Income Corp (O)": 0.032,
+      "CoStar Group Inc (CSGP)": 0.028,
+      "Iron Mountain Inc (IRM)": 0.022
+    }
+  },
+  "VBTLX": {
+    "name": "Vanguard Total Bond Market Index Fund",
+    "type": "Fixed Income: Total Bond",
+    "holdings": {
+      "US Treasury Bonds (US-T)": 0.300,
+      "Federal National Mortgage Association (FNMA)": 0.150,
+      "US Government Agency Debt": 0.100,
+      "Corporate Bonds (BBB Rated)": 0.150,
+      "Corporate Bonds (A Rated)": 0.120,
+      "Corporate Bonds (AAA/AA Rated)": 0.080,
+      "Cash & Cash Equivalents": 0.100
+    }
+  },
+  "VWELX": {
+    "name": "Vanguard Wellington Fund",
+    "type": "Balanced: 65% Stocks / 35% Bonds",
+    "holdings": {
+      "US Treasury Bonds (Fixed Income)": 0.250,
+      "Corporate Bonds (Fixed Income)": 0.100,
+      "Microsoft Corp (MSFT)": 0.045,
+      "Apple Inc (AAPL)": 0.038,
+      "Alphabet Inc (GOOGL)": 0.028,
+      "Amazon.com Inc (AMZN)": 0.022,
+      "JPMorgan Chase & Co (JPM)": 0.020,
+      "Johnson & Johnson (JNJ)": 0.018,
+      "Exxon Mobil Corp (XOM)": 0.015,
+      "Merck & Co Inc (MRK)": 0.014
+    }
+  }
+}

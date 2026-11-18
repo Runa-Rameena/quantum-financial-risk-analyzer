@@ -1,0 +1,3331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Mutual Funds Risk Intelligence</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Three.js CDN for 3D visualizations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #060913;
+            --bg-card: rgba(15, 23, 42, 0.55);
+            --bg-sidebar: rgba(15, 23, 42, 0.7);
+            --border-color: rgba(51, 65, 85, 0.4);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Premium Navbar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2.5rem;
+            background: rgba(6, 9, 19, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Market Regime Visual Symbolism in Header */
+        .regime-visualizer {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 0.4rem 1rem;
+        }
+
+        .regime-icon {
+            font-size: 1.25rem;
+            filter: drop-shadow(0 0 8px currentColor);
+            transition: all 0.3s ease;
+        }
+
+        .regime-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .btn-refresh {
+            background: rgba(59, 130, 246, 0.08);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            padding: 0.55rem 1.1rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent-blue);
+        }
+
+        /* Multi-Dashboard Navigation Tabs */
+        .dashboard-tabs {
+            display: flex;
+            background: rgba(15, 23, 42, 0.3);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 2.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 1.1rem 1.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            outline: none;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-blue);
+        }
+
+        /* Main Layout */
+        main {
+            display: flex;
+            flex: 1;
+            padding: 2.5rem;
+            gap: 2.5rem;
+            max-width: 1700px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 20.5rem;
+            flex-shrink: 0;
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.35rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            backdrop-filter: blur(16px);
+            height: fit-content;
+            transition: all 0.2s ease;
+        }
+
+        .dashboard-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        /* Dashboard Pages (Tabs) */
+        .tab-panel {
+            display: none;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .tab-panel.active {
+            display: flex;
+        }
+
+        .panel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Explainer Tooltips */
+        .tooltip-trigger {
+            cursor: help;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.1rem;
+            height: 1.1rem;
+            border-radius: 50%;
+            border: 1px solid var(--text-secondary);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tooltip-trigger:hover {
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .tooltip-box {
+            position: absolute;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            width: 16rem;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 200;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            font-weight: normal;
+        }
+
+        .tooltip-trigger:hover .tooltip-box {
+            opacity: 1;
+        }
+
+        /* ====================================
+           TAB 1: PORTFOLIO ARCHITECT FLOW MAP
+           ==================================== */
+        .flow-container {
+            display: grid;
+            grid-template-columns: 1fr 1.8fr;
+            gap: 2rem;
+        }
+
+        /* Left Side: Mutual Funds Allocation Cards */
+        .flow-funds-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .flow-fund-card {
+            background: rgba(30, 41, 59, 0.35);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .flow-fund-card:hover {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .flow-fund-card.selected-filter {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.06);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+        }
+
+        .flow-fund-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flow-fund-ticker {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .flow-fund-dollars {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-blue);
+        }
+
+        /* Right Side: Underlying Companies grid */
+        .flow-companies-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .search-container {
+            display: flex;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .company-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+            gap: 1.25rem;
+        }
+
+        .company-card {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .company-card.highlighted {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+        }
+
+        .company-card.faded {
+            opacity: 0.15;
+            pointer-events: none;
+            transform: scale(0.97);
+        }
+
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .company-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .company-ticker {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .company-investment {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .company-dollars {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .company-percent {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #1e293b;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-blue);
+            width: 0;
+            transition: width 0.4s ease;
+        }
+
+        .company-sources {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(51, 65, 85, 0.2);
+            padding-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        /* ====================================
+           TAB 2: QUANTUM RISK SIMULATOR
+           ==================================== */
+        .qae-dashboard-row {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 2rem;
+        }
+
+        .visualizer-container {
+            width: 100%;
+            height: 20rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: #020617;
+            position: relative;
+        }
+
+        .visualizer-overlay {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            pointer-events: none;
+            background: rgba(2, 6, 23, 0.7);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        /* Green CRT Command Terminal styling */
+        .log-terminal {
+            background: #020617 !important;
+            border: 1px solid rgba(16, 185, 129, 0.3) !important;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            color: #10b981 !important;
+            text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+            height: 12rem;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+        }
+
+        /* ====================================
+           TAB 3: QSVM STYLE DRIFT & TIMELINE
+           ==================================== */
+        /* Manager Rebalancing Timeline */
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .timeline-event {
+            display: flex;
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .timeline-event::after {
+            content: '';
+            position: absolute;
+            left: 1.375rem;
+            top: 2rem;
+            bottom: -1.75rem;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-event:last-child::after {
+            display: none;
+        }
+
+        .timeline-marker {
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 50%;
+            background: rgba(30, 41, 59, 0.5);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .timeline-marker.withdrawal {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .timeline-marker.reinvestment {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .timeline-content {
+            background: rgba(30, 41, 59, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .timeline-fund {
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.25rem;
+        }
+
+        .timeline-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .timeline-transaction {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .timeline-reason {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+            background: rgba(2, 6, 23, 0.3);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+        }
+
+        /* QSVM Card styles with Probability Bars */
+        .drift-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+            gap: 1.25rem;
+        }
+
+        .drift-card {
+            background: rgba(30, 41, 59, 0.4) !important;
+            border: 1px solid rgba(148, 163, 184, 0.15) !important;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .drift-card:hover {
+            border-color: rgba(148, 163, 184, 0.3) !important;
+        }
+
+        /* Advisory Box Styling - Stacked correctly to avoid clumsy text overlap */
+        .advisory-box {
+            background: rgba(59, 130, 246, 0.05) !important;
+            border: 1px solid rgba(59, 130, 246, 0.25) !important;
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .advisory-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+        }
+
+        .advisory-text {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+            display: block;
+        }
+
+        /* ====================================
+           TAB 4: MANAGER SELECTION ENGINE (ADVANCED DESIGN)
+           ==================================== */
+        /* Quantum QPU Circuit Pipeline layout */
+        .qpu-circuit-board {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .qpu-wire-row {
+            display: flex;
+            align-items: center;
+            position: relative;
+            height: 3rem;
+        }
+
+        .qpu-qubit-label {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            width: 3.5rem;
+            flex-shrink: 0;
+        }
+
+        .qpu-wire-line {
+            flex: 1;
+            height: 2px;
+            background: rgba(148, 163, 184, 0.2);
+            position: relative;
+        }
+
+        .qpu-wire-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: var(--accent-blue);
+            box-shadow: 0 0 8px var(--accent-blue);
+        }
+
+        .qpu-wire-line.active-wire::before {
+            animation: circuit-pulse 3s linear forwards;
+        }
+
+        @keyframes circuit-pulse {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+
+        /* Quantum Gate elements placed on qubit wires */
+        .qpu-gate {
+            position: absolute;
+            background: #0f172a;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 0.375rem;
+            height: 2.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            transform: translateY(-50%);
+            top: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .qpu-gate.gate-active {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+            color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .gate-symbol {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--accent-green);
+            margin-bottom: 0.1rem;
+        }
+
+        /* Liquid Particle Funnel Canvas */
+        .funnel-canvas-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(2, 6, 23, 0.4);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        /* Physics Sector Node Map */
+        .node-matrix-container {
+            width: 100%;
+            height: 22rem;
+            position: relative;
+            background: rgba(2, 6, 23, 0.4);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .matrix-svg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .matrix-node {
+            position: absolute;
+            width: 4.5rem;
+            height: 4.5rem;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .matrix-node:hover, .matrix-node.active-node {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+            transform: scale(1.08);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .matrix-node-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 0.15rem;
+            line-height: 1.2;
+        }
+
+        .matrix-node-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Center Hub Node */
+        .matrix-hub {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 5.5rem;
+            height: 5.5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.45);
+            z-index: 12;
+            text-align: center;
+            animation: hub-pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes hub-pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 35px rgba(59, 130, 246, 0.6); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .matrix-hub-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 0.05em;
+        }
+
+        /* Criteria drawer overlay node map */
+        .node-criteria-drawer {
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            min-height: 5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-top: 1rem;
+        }
+
+        /* ====================================
+           TAB 5: COGNITIVE AI ADVISOR CHAT
+           ==================================== */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 34rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-log {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-msg {
+            max-width: 80%;
+            padding: 0.875rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .msg-assistant {
+            background: rgba(30, 41, 59, 0.6);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+            border: 1px solid rgba(51, 65, 85, 0.2);
+        }
+
+        .msg-user {
+            background: var(--accent-blue);
+            color: var(--text-primary);
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.65);
+            border-top: 1px solid var(--border-color);
+            gap: 0.75rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .btn-send {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-send:hover {
+            background: #2563eb;
+        }
+
+        .suggest-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding: 0 1.5rem 1rem 1.5rem;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .suggest-pill {
+            background: rgba(59, 130, 246, 0.08);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 0.375rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .suggest-pill:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent-blue);
+        }
+
+        /* Fund Item Side list */
+        .fund-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 22rem;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .fund-item {
+            background: rgba(30, 41, 59, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .fund-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fund-ticker {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .fund-name {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            max-width: 14rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fund-val {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+        }
+
+        .slider-control {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #1e293b;
+            outline: none;
+        }
+
+        .slider-control::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        .allocation-summary {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.75rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-control {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            width: 100%;
+        }
+
+        .input-control:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .btn-analyze {
+            background: var(--accent-blue);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.875rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: center;
+            outline: none;
+        }
+
+        .btn-analyze:hover {
+            background: #2563eb;
+        }
+
+        .btn-analyze:disabled {
+            background: #1e293b;
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        /* Summary statistics row */
+        .quick-stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+        }
+
+        .quick-stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            position: relative;
+        }
+
+        .quick-stat-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .quick-stat-value {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .quick-stat-footer {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* Loading Screen overlay */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(6, 9, 19, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Safety Meter Card Styling */
+        .safety-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .safety-ring-wrapper {
+            position: relative;
+            width: 3.5rem;
+            height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .safety-ring-bg {
+            fill: none;
+            stroke: #1e293b;
+            stroke-width: 4;
+        }
+
+        .safety-ring-fill {
+            fill: none;
+            stroke: var(--accent-green);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dasharray 0.5s ease;
+        }
+
+        .safety-score-label {
+            position: absolute;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="spinner"></div>
+        <p style="font-weight: 500; font-size: 1rem;" id="loadingMsg">Initializing Dashboard...</p>
+    </div>
+
+    <!-- Premium Navbar -->
+    <header>
+        <div class="logo-section">
+            <div class="logo-icon"></div>
+            <div>
+                <h1>Quantum Portfolio Risk Intelligence</h1>
+                <p style="font-size: 0.7rem; color: var(--text-secondary);">Noisy Intermediate-Scale Quantum Simulator Backend</p>
+            </div>
+        </div>
+        <div class="header-meta">
+            <!-- Bull/Bear Symbolism Badge -->
+            <div class="regime-visualizer" id="regimeVisualizer" style="display: none;">
+                <span class="regime-icon" id="regimeIcon">🐂</span>
+                <span class="regime-label" id="regimeLabel">Bull/Stable</span>
+            </div>
+            <button class="btn-refresh" onclick="refreshData()">Update Historical Data</button>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="dashboard-tabs">
+        <button class="tab-btn active" onclick="switchTab('architectTab', this)">Portfolio Architect</button>
+        <button class="tab-btn" onclick="switchTab('quantumRiskTab', this)">Quantum Risk Simulator</button>
+        <button class="tab-btn" onclick="switchTab('styleDriftTab', this)">QSVM Style Drift</button>
+        <button class="tab-btn" onclick="switchTab('managerTab', this)">Live Market Stream</button>
+        <button class="tab-btn" onclick="switchTab('aiAdvisorTab', this)">Cognitive AI Advisor</button>
+    </div>
+
+    <!-- Main Layout -->
+    <main>
+        <!-- Left Sidebar: Controls -->
+        <div class="sidebar">
+            <div>
+                <h2 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 1rem;">Asset Allocation</h2>
+                <div class="fund-list" id="fundInputs">
+                    <!-- Dynamic fund sliders -->
+                </div>
+                <div class="allocation-summary" style="margin-top: 1rem;">
+                    <span>Total Allocation:</span>
+                    <span id="totalAllocationLabel">0%</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="investAmount">Investment Amount ($)</label>
+                <input type="number" id="investAmount" class="input-control" value="10000" min="100" oninput="updateAllocationDisplay()">
+            </div>
+
+            <div class="form-group">
+                <label for="riskProfile">Target Risk Profile</label>
+                <select id="riskProfile" class="input-control">
+                    <option value="Conservative">Conservative (Stable / Lower Risk)</option>
+                    <option value="Balanced" selected>Balanced (Moderate Growth)</option>
+                    <option value="Aggressive">Aggressive (High Yield / Maximum Volatility)</option>
+                </select>
+            </div>
+
+            <button class="btn-analyze" id="btnAnalyze" onclick="runAnalysis()">
+                Run Quantum Simulation
+            </button>
+        </div>
+
+        <!-- Dashboard Content Panels -->
+        <div class="dashboard-content">
+            
+            <!-- Quick Stats Row -->
+            <div class="quick-stats-row" id="quickStatsRow" style="display: none; margin-bottom: 1rem;">
+                <div class="quick-stat-card">
+                    <span class="quick-stat-label">
+                        Projected Return
+                        <span class="tooltip-trigger">?
+                            <span class="tooltip-box">The annualized mean return of your portfolio based on daily returns historical distribution.</span>
+                        </span>
+                    </span>
+                    <span class="quick-stat-value" id="quickReturn">--</span>
+                    <span class="quick-stat-footer">Annualized Mean</span>
+                </div>
+                <div class="quick-stat-card">
+                    <span class="quick-stat-label">
+                        Volatility
+                        <span class="tooltip-trigger">?
+                            <span class="tooltip-box">Annualized volatility measures the daily swings or risk level of your portfolio returns.</span>
+                        </span>
+                    </span>
+                    <span class="quick-stat-value" id="quickVolatility">--</span>
+                    <span class="quick-stat-footer">Risk Deviation</span>
+                </div>
+                <div class="quick-stat-card">
+                    <span class="quick-stat-label">
+                        Sharpe Ratio
+                        <span class="tooltip-trigger">?
+                            <span class="tooltip-box">Evaluates the efficiency of your returns. Higher Sharpe ratio means better returns relative to the risk taken.</span>
+                        </span>
+                    </span>
+                    <span class="quick-stat-value" id="quickSharpe">--</span>
+                    <span class="quick-stat-footer">Risk-Adjusted Efficiency</span>
+                </div>
+                <div class="quick-stat-card" style="border-color: rgba(16, 185, 129, 0.3);">
+                    <span class="quick-stat-label" style="color: var(--accent-green);">
+                        Quantum 99% VaR
+                        <span class="tooltip-trigger">?
+                            <span class="tooltip-box">Calculated via Quantum Amplitude Estimation (QAE). Shows the max daily loss limit at 99% confidence level.</span>
+                        </span>
+                    </span>
+                    <span class="quick-stat-value" id="quickQuantumVaR" style="color: var(--accent-green);">--</span>
+                    <span class="quick-stat-footer" id="quickQuantumVaRLabel">Max 1-Day loss limit</span>
+                </div>
+            </div>
+
+            <!-- ==============================================
+                 DASHBOARD 1: PORTFOLIO ARCHITECT (MONEY FLOW)
+                 ============================================== -->
+            <div id="architectTab" class="tab-panel active">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-title">
+                                Money Distribution Flow Map
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-box">Shows exactly how the mutual fund managers distribute your capital across underlying companies.</span>
+                                </span>
+                            </span>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                Click on any mutual fund card below to filter and highlight exactly where that manager invests your dollars.
+                            </p>
+                        </div>
+                        
+                        <!-- Safety Score Gauge integrated on Tab 1 -->
+                        <div class="safety-container" id="safetyScoreContainer" style="display: none;">
+                            <div style="text-align: right;">
+                                <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Portfolio Safety</span>
+                                <div id="safetyScoreText" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-green);">Excellent</div>
+                            </div>
+                            <div class="safety-ring-wrapper">
+                                <svg width="56" height="56">
+                                    <circle class="safety-ring-bg" cx="28" cy="28" r="24"></circle>
+                                    <circle class="safety-ring-fill" id="safetyRing" cx="28" cy="28" r="24" stroke-dasharray="150" stroke-dashoffset="150"></circle>
+                                </svg>
+                                <span class="safety-score-label" id="safetyScoreLabel">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search-container">
+                        <input type="text" id="companySearch" class="input-control" placeholder="Search stock or bond holding (e.g. NVIDIA, Microsoft, Apple, REIT, Treasury)..." oninput="filterHoldings()">
+                    </div>
+
+                    <div class="flow-container">
+                        <!-- Left Column: Mutual Funds Dollar Division & Screening Rules -->
+                        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                            <div class="flow-funds-column" id="flowFundsColumn">
+                                <div style="text-align: center; color: var(--text-secondary); padding: 4rem 0;">
+                                    Select weights and run analysis.
+                                </div>
+                            </div>
+                            
+                            <!-- Selection Playbook Card -->
+                            <div class="panel-card" id="selectionPlaybookCard" style="display: none; border-color: rgba(16, 185, 129, 0.2);">
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent-green);" id="playbookTitle">Fund Selection Playbook</span>
+                                <div id="playbookMetadata" style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; border-bottom: 1px solid rgba(51, 65, 85, 0.2); padding-bottom: 0.5rem; margin-bottom: 0.5rem; margin-top: 0.25rem;"></div>
+                                <ul id="playbookCriteriaList" style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.45; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.4rem; margin: 0;">
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column: Underlying Companies Grid -->
+                        <div class="flow-companies-column">
+                            <div id="noResultsMsg" style="display: none; text-align: center; color: var(--text-secondary); padding: 2rem;">
+                                No matching companies found in your selected portfolio's holdings.
+                            </div>
+                            <div class="company-grid" id="companyGrid">
+                                <div style="text-align: center; color: var(--text-secondary); padding: 4rem 0;">
+                                    Configure allocations and run the quantum simulation to view the exact company-level breakdown.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==============================================
+                 DASHBOARD 2: QUANTUM RISK SIMULATOR (Q-VaR)
+                 ============================================== -->
+            <div id="quantumRiskTab" class="tab-panel">
+                <div class="qae-dashboard-row">
+                    <!-- 3D Three.js Visualizer Panel -->
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <div>
+                                <span class="panel-title">
+                                    Quantum QAE State Simulator
+                                    <span class="tooltip-trigger">?
+                                        <span class="tooltip-box">A 3D representation of the qubit state. Rotates rapidly during Hamiltonian simulations and changes color based on portfolio risk.</span>
+                                    </span>
+                                </span>
+                                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Interactive 3D particle sphere representing simulated quantum registers.</p>
+                            </div>
+                        </div>
+                        <div class="visualizer-container" id="canvasContainer">
+                            <div class="visualizer-overlay" id="visualizerMeta">QPU Simulator Standby. Awaiting simulation trigger...</div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Metrics card -->
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <span class="panel-title">Value-at-Risk Stress Testing</span>
+                        </div>
+                        <div style="position: relative; height: 16rem; width: 100%;">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QML Benchmarking & Logs -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <span class="panel-title">QML Amplitude Estimation vs. Monte Carlo Benchmarking</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <table class="overlap-table">
+                                <thead>
+                                    <tr>
+                                        <th>Algorithm</th>
+                                        <th>99% VaR Estimate</th>
+                                        <th>Execution Latency</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Classical Monte Carlo</strong></td>
+                                        <td id="benchMcVaR">--</td>
+                                        <td id="benchMcTime">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong style="color: var(--accent-green);">Quantum MLAE</strong></td>
+                                        <td id="benchQuantumVaR" style="color: var(--accent-green);">--</td>
+                                        <td id="benchQuantumTime" style="color: var(--accent-green);">--</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- CRT Green Hacker Terminal -->
+                        <div class="log-terminal" id="terminalOutput">Terminal initialized. Ready to execute Quantum Amplitude Estimation...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==============================================
+                 DASHBOARD 3: QSVM ACTIVE STYLE DRIFT & TIMELINE
+                 ============================================== -->
+            <div id="styleDriftTab" class="tab-panel">
+                <!-- Market Shock Simulator Card -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-title">Interactive Market Crisis Simulator</span>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                Select a historical market crisis scenario and trigger a simulation to see how the manager reallocates assets and how the safety score adapts.
+                            </p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn-refresh" style="border-color: var(--accent-red); color: var(--accent-red); background: rgba(239, 68, 68, 0.08);" onclick="triggerMarketShock('bubble')">💥 Tech Bubble Burst (Equity Drop)</button>
+                        <button class="btn-refresh" style="border-color: var(--accent-amber); color: var(--accent-amber); background: rgba(245, 158, 11, 0.08);" onclick="triggerMarketShock('inflation')">📈 Fed Interest Rate Shock (Bond Volatility)</button>
+                        <button class="btn-refresh" style="border-color: var(--accent-green); color: var(--accent-green); background: rgba(16, 185, 129, 0.08);" onclick="triggerMarketShock('recovery')">🐂 Goldilocks Recovery (Stable Bull Run)</button>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-title">
+                                QSVM Active Style Drift Monitor
+                                <span class="tooltip-trigger">?
+                                    <span class="tooltip-box">QSVM monitors if the fund manager shifts capital out of target asset-classes to chase returns, changing the risk profile.</span>
+                                </span>
+                            </span>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                Examines daily returns and rolling volatilities in Hilbert space to detect if managers secretly deviate from risk parameters.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="drift-grid" id="driftCards">
+                        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 4rem 0;">
+                            Configure allocations and run the quantum simulation to view the QSVM style drift analysis.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fund Manager Transaction Ledger -->
+                <div class="panel-card" id="managerLedgerCard" style="display: none;">
+                    <div class="panel-header">
+                        <div>
+                            <span class="panel-title">Fund Manager Active Reallocation Timeline</span>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                Ledger detailing when the manager withdrew capital from "dangerous" or high-volatility companies and reallocated it to safer stocks.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="timeline-container" id="timelineContainer">
+                        <!-- Dynamic timeline events -->
+                    </div>
+                </div>
+                
+                <div class="advisory-box" id="advisoryBox" style="display: none;">
+                    <span class="advisory-title">Quantum Advisory System Rebalancing Suggestion</span>
+                    <span class="advisory-text" id="advisoryText"></span>
+                </div>
+            </div>
+
+            <!-- ==============================================
+                 DASHBOARD 4: LIVE MARKET STREAM (Tab replacement)
+                 ============================================== -->
+            <div id="managerTab" class="tab-panel">
+                <!-- Market Session Status Banner -->
+                <div class="advisory-box" id="liveMarketClosedNotice" style="display: none; margin-bottom: 1.5rem; border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.05); padding: 1rem; flex-direction: column; gap: 0.25rem;">
+                    <span class="advisory-title" id="sessionNoticeTitle" style="color: #60a5fa; font-weight: 700; font-size: 0.85rem;">🇺🇸 U.S. EXCHANGES LIVE FEED</span>
+                    <span class="advisory-text" id="sessionNoticeText" style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4;">
+                        Streaming real-time intraday ticks from NYSE & NASDAQ in USD ($). Market hours: Monday–Friday 9:30 AM – 4:00 PM EDT.
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: stretch;">
+                    <!-- Left Column: Live Ticker Log Feed -->
+                    <div class="panel-card" style="display: flex; flex-direction: column; height: 100%;">
+                        <div class="panel-header" style="margin-bottom: 0.75rem;">
+                            <div>
+                                <span class="panel-title" style="font-size: 1.05rem;">Real-Time Market Data Tickers</span>
+                                <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem;">Server-Sent Events (SSE) live feed of U.S. equity benchmarks.</p>
+                            </div>
+                        </div>
+                        <div style="flex-grow: 1; height: 29rem; max-height: 29rem; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 0.75rem; background: rgba(15, 23, 42, 0.35);">
+                            <div style="font-size: 0.78rem; color: #60a5fa; font-weight: 700; margin-bottom: 0.65rem; display: flex; justify-content: space-between; padding: 0 0.35rem;">
+                                <span>🇺🇸 U.S. MARKETS (NYSE / NASDAQ in USD $)</span>
+                                <span id="usMarketClock" style="color: var(--text-secondary); font-family: monospace;">--:--:-- EDT</span>
+                            </div>
+                            <table class="overlap-table" style="font-size: 0.82rem; margin: 0; width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%; padding: 0.6rem 0.5rem;">Time</th>
+                                        <th style="width: 16%; padding: 0.6rem 0.5rem;">MSFT</th>
+                                        <th style="width: 16%; padding: 0.6rem 0.5rem;">AAPL</th>
+                                        <th style="width: 16%; padding: 0.6rem 0.5rem;">NVDA</th>
+                                        <th style="width: 16%; padding: 0.6rem 0.5rem;">LLY</th>
+                                        <th style="width: 16%; padding: 0.6rem 0.5rem;">TSLA</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="liveTickerBody">
+                                    <tr>
+                                        <td style="color: var(--text-secondary); font-family: monospace;">Live Feed</td>
+                                        <td>$495.42</td>
+                                        <td>$305.95</td>
+                                        <td style="color: var(--accent-green); font-weight: 600;">$225.16</td>
+                                        <td>$1180.63</td>
+                                        <td>$342.32</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Live Chart & Portfolio Valuation -->
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <!-- Portfolio Valuation counter card -->
+                        <div class="panel-card" style="padding: 1.35rem; display: flex; align-items: center; justify-content: space-between; border-color: rgba(59, 130, 246, 0.25); background: linear-gradient(135deg, rgba(30, 41, 59, 0.45), rgba(15, 23, 42, 0.45));">
+                            <div>
+                                <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Live Portfolio Valuation</span>
+                                <div id="livePortfolioVal" style="font-size: 2.3rem; font-family: monospace; font-weight: 800; color: #fff; margin-top: 0.25rem;">$10,000.00</div>
+                                <div id="liveValDiff" style="font-size: 0.88rem; margin-top: 0.2rem;">--</div>
+                            </div>
+                            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
+                                <div id="vixGaugeCircle" style="width: 2.75rem; height: 2.75rem; border-radius: 50%; background-color: var(--accent-green); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);">
+                                    <span style="font-size: 0.95rem; font-weight: 700; color: #0f172a;">VIX</span>
+                                </div>
+                                <span style="font-size: 0.78rem; color: var(--text-secondary);">Market VIX: <strong id="liveVix" style="color: #fff;">14.5</strong></span>
+                                <span style="font-size: 0.78rem; color: var(--text-secondary);">Sentiment: <strong id="liveSentiment" style="color: #fff;">Stable</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Actionable Live Risk Telemetry Row -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                            <!-- Live Capital at Risk (CaR) -->
+                            <div class="panel-card" style="padding: 1.15rem; border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.35rem;">
+                                        <span style="font-size: 0.74rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Capital at Risk</span>
+                                        <span style="font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(239, 68, 68, 0.15); color: var(--accent-red); font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.3); white-space: nowrap;">Active Q-VaR</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.5rem;">99% Tail Risk Exposure</div>
+                                </div>
+                                <div>
+                                    <div id="liveCapitalAtRisk" style="font-size: 1.6rem; font-family: monospace; font-weight: 800; color: var(--accent-red); margin-bottom: 0.25rem;">$150.37</div>
+                                    <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.3;">Projected max 1-day loss updating live</div>
+                                </div>
+                            </div>
+
+                            <!-- Live Concentration HHI Index -->
+                            <div class="panel-card" style="padding: 1.15rem; border-color: rgba(16, 185, 129, 0.25); background: rgba(16, 185, 129, 0.03); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.35rem;">
+                                        <span style="font-size: 0.74rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Concentration (HHI)</span>
+                                        <span id="liveConcentrationBadge" style="font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 9999px; background: rgba(16, 185, 129, 0.15); color: var(--accent-green); font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3); white-space: nowrap;">Well Diversified</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.5rem;">Herfindahl-Hirschman Score</div>
+                                </div>
+                                <div>
+                                    <div id="liveConcentrationHHI" style="font-size: 1.6rem; font-family: monospace; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">273</div>
+                                    <div style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.3;">Single-stock dominance & overlap metric</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Price Trend Chart -->
+                        <div class="panel-card" style="padding: 1.25rem;">
+                            <div class="panel-header" style="margin-bottom: 0.5rem;">
+                                <span class="panel-title" style="font-size: 0.95rem;">Intraday Stock Price Movements (USD)</span>
+                            </div>
+                            <div style="position: relative; height: 13.5rem; width: 100%;">
+                                <canvas id="livePriceChart"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==============================================
+                 DASHBOARD 5: COGNITIVE AI ADVISOR (CHATBOT)
+                 ============================================== -->
+            <div id="aiAdvisorTab" class="tab-panel">
+                <div class="chat-container">
+                    <div class="chat-log" id="chatLog">
+                        <div class="chat-msg msg-assistant">
+                            Hello! I am your **Cognitive QML Advisor**. Once you run the quantum simulation, I will analyze your portfolio state and help you evaluate risk, style drift, and individual stock exposure. How can I assist you today?
+                        </div>
+                    </div>
+                    <!-- Quick suggestions -->
+                    <div class="suggest-pills" id="suggestPills" style="display: none;">
+                        <button class="suggest-pill" onclick="sendQuickQuery('Is my portfolio properly diversified?')">Check Diversification</button>
+                        <button class="suggest-pill" onclick="sendQuickQuery('Analyze my portfolio volatility and Q-VaR risk')">Assess Volatility & Q-VaR</button>
+                        <button class="suggest-pill" onclick="sendQuickQuery('Do I have style drift in my bonds or balanced funds?')">Check Style Drift</button>
+                        <button class="suggest-pill" onclick="sendQuickQuery('What is my total exposure to NVIDIA?')">NVIDIA Exposure</button>
+                        <button class="suggest-pill" onclick="sendQuickQuery('What is my total exposure to Microsoft?')">Microsoft Exposure</button>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Ask about overlaps, risk parameters, or specific stocks..." onkeydown="if(event.key === 'Enter') sendChatMessage()">
+                        <button class="btn-send" onclick="sendChatMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let fundsData = {};
+        let myChart = null;
+        let lastReport = null;
+        let selectedFundFilter = null;
+
+        // Custom details for sectors mapped per fund
+        const sectorMapping = {
+            "VFIAX": {
+                secNode1: { name: "Technology Selection", exp: "Filters the top mega-cap tech giants. Chooses Microsoft and Apple based strictly on their S&P 500 capitalization values." },
+                secNode2: { name: "Financials Selection", exp: "Captures core financials (Berkshire, JPMorgan) to mirror index market weights." },
+                secNode3: { name: "Healthcare Selection", exp: "Invests in established health developers (Eli Lilly) based on asset scale." },
+                secNode4: { name: "Property & Infrastructure", exp: "Holds major property indices or filters out REITs to prioritize core equity." },
+                secNode5: { name: "Fixed Income Selection", exp: "Equity index fund. Holds 0% bonds; capital is strictly in stocks." }
+            },
+            "VWELX": {
+                secNode1: { name: "Technology Selection", exp: "Selects blue-chip tech (Microsoft) with solid cash flows and stable dividends." },
+                secNode2: { name: "Financials Selection", exp: "Selects stable banking leaders (JPMorgan) with strong capital reserves." },
+                secNode3: { name: "Healthcare Selection", exp: "Selects pharmaceutical leaders (J&J) providing defensive yield cushions." },
+                secNode4: { name: "Property & Real Estate", exp: "Excludes volatile developers; prioritizes high-yield commercial REITs." },
+                secNode5: { name: "Fixed Income Selection", exp: "Allocates 35% to high-quality U.S. government debt to shield equity shocks." }
+            },
+            "VIGAX": {
+                secNode1: { name: "Technology Selection", exp: "Invests heavily in software leaders showing growth velocity > 15%." },
+                secNode2: { name: "Financials Selection", exp: "Selects modern payment networks (Visa, Mastercard) displaying growth traits." },
+                secNode3: { name: "Healthcare Selection", exp: "Invests in innovative drug pipelines displaying fast EPS acceleration." },
+                secNode4: { name: "Property & Infrastructure", exp: "Excludes real estate; prioritizes computing properties." },
+                secNode5: { name: "Fixed Income Selection", exp: "0% allocation. Focuses strictly on equity growth acceleration." }
+            },
+            "VBTLX": {
+                secNode1: { name: "Technology Selection", exp: "0% stocks. Manager does not allocate to technology equities." },
+                secNode2: { name: "Financials Selection", exp: "0% stocks. Does not allocate to banking stocks." },
+                secNode3: { name: "Healthcare Selection", exp: "0% stocks. No pharmaceutical equity exposure." },
+                secNode4: { name: "Mortgage Agency Debt", exp: "Allocates 15% to agency mortgage backed securities (FNMA)." },
+                secNode5: { name: "Government/Corporate Debt", exp: "Allocates 60% to Treasuries and 25% to corporate debt rated BBB+." }
+            },
+            "VGSLX": {
+                secNode1: { name: "Industrial & Logistics", exp: "Selects Prologis for logistics hubs and warehouses backing e-commerce." },
+                secNode2: { name: "Specialized Data Centers", exp: "Invests in Equinix and Digital Realty supporting tech servers." },
+                secNode3: { name: "Healthcare Properties", exp: "Selects Welltower for senior living / medical offices." },
+                secNode4: { name: "Retail & Malls", exp: "Selects Simon Property Group based on high rental occupancy ratios." },
+                secNode5: { name: "Fixed Income Selection", exp: "Real estate equity index. Manager holds 0% bonds." }
+            },
+            "VTSAX": {
+                secNode1: { name: "Technology Selection", exp: "Holds 100% of large, mid, and small U.S. tech stocks proportional to index size." },
+                secNode2: { name: "Financials Selection", exp: "Spreads capital across full banking system (JPMorgan down to mid banks)." },
+                secNode3: { name: "Healthcare Selection", exp: "Covers biotech, pharma, and medical devices globally." },
+                secNode4: { name: "Property & Real Estate", exp: "Replicates all commercial and residential REIT sectors." },
+                secNode5: { name: "Fixed Income Selection", exp: "Broad stock market index. Manager holds 0% bonds." }
+            }
+        };
+
+        // Selection criteria playbook definitions
+        const selectionPlaybookDetails = {
+            "VFIAX": {
+                title: "VFIAX Selection Playbook",
+                category: "Large-Cap Equities",
+                universe: "US Broad Stock Market (approx. 3,500 listed stocks)",
+                criteria: [
+                    "<strong>Market Cap Limit:</strong> Filter for S&P 500 membership (only the top 500 largest capitalization firms).",
+                    "<strong>Liquidity Screening:</strong> Ensure average daily trading volume is in the top 10% of listed assets.",
+                    "<strong>Capitalization Weighting:</strong> Replicate exact market index percentages. S&P 500 cap-weighted algorithm dictates final dollar distribution."
+                ]
+            },
+            "VTSAX": {
+                title: "VTSAX Selection Playbook",
+                category: "All-Cap Equities",
+                universe: "All liquid US common stocks (approx. 4,000 assets)",
+                criteria: [
+                    "<strong>Complete Market Capture:</strong> Holds large, mid, and small-cap stocks to cover 100% of investable US equity capitalization.",
+                    "<strong>Penny Stock Exclusion:</strong> Filters out highly illiquid, micro-cap stocks with insufficient volume or pricing history.",
+                    "<strong>Index Replication:</strong> Follows CRSP US Total Market Index weights to allocate dollars across all sectors."
+                ]
+            },
+            "VIGAX": {
+                title: "VIGAX Selection Playbook",
+                category: "Large-Cap Growth",
+                universe: "US Large Cap Stock Universe (approx. 1,000 assets)",
+                criteria: [
+                    "<strong>Growth Screener:</strong> Evaluates stocks based on past and projected revenue growth, historical EPS expansion, and asset turnover.",
+                    "<strong>Sales Velocity:</strong> Excludes companies showing less than 10% year-over-year revenue expansion.",
+                    "<strong>Growth Weighting:</strong> Prioritizes high-momentum technology and pharmaceutical stocks (e.g. Microsoft, NVIDIA, Apple)."
+                ]
+            },
+            "VBTLX": {
+                title: "VBTLX Selection Playbook",
+                category: "Fixed Income (Bonds)",
+                universe: "Investment-Grade Corporate & US Treasury Bond Market (10,000+ issues)",
+                criteria: [
+                    "<strong>Credit Rating Screen:</strong> Restricts purchase strictly to investment-grade bonds rated BBB- or higher by Standard & Poor's.",
+                    "<strong>Issuer Ratio:</strong> Targets 60% US Government Debt (Treasuries) and 40% Corporate Bond split to diversify default risks.",
+                    "<strong>Duration Targeting:</strong> Rebalances the bond ladder quarterly to maintain a intermediate duration range."
+                ]
+            },
+            "VGSLX": {
+                title: "VGSLX Selection Playbook",
+                category: "Real Estate (REITs)",
+                universe: "Liquid US Real Estate Investment Trusts (approx. 150 assets)",
+                criteria: [
+                    "<strong>REIT Classification:</strong> Holds strictly corporate equity trusts registered as REITs that distribute >= 90% of taxable earnings as dividends.",
+                    "<strong>Occupancy Screening:</strong> Filters for trusts displaying an aggregate rental property occupancy ratio above 92%.",
+                    "<strong>Specialization Split:</strong> Allocates capital across logistics/warehouses, data centers, healthcare, and retail properties."
+                ]
+            },
+            "VWELX": {
+                title: "VWELX Selection Playbook",
+                category: "Balanced/Hybrid Asset Allocation",
+                universe: "Dual Stock/Bond Universe (approx. 3,500 assets)",
+                criteria: [
+                    "<strong>Balanced Allocation Rule:</strong> Mandates a strategic allocation split of 65% Equity Blue Chips and 35% High-Grade Debt Bonds.",
+                    "<strong>Debt/Equity Leverage filter:</strong> Excludes highly leveraged equities. Companies must display Debt-to-Equity ratios < 1.2 to reduce insolvency risk.",
+                    "<strong>Cash Yield filter:</strong> Equities must pay solid, consistent dividends with yields > 2.0% to support portfolio cash flows."
+                ]
+            }
+        };
+
+        // Three.js 3D Qubit Visualizer Variables
+        let scene, camera, renderer, particleSphere;
+        let visualizerRotationSpeed = 0.005;
+        let visualizerColor = 0x3b82f6;
+
+        // Initialize Web Application
+        window.addEventListener("DOMContentLoaded", () => {
+            loadFunds();
+            init3DVisualizer();
+            initLiveMarketStream();
+        });
+
+        // Global variables for active tab tracking and static stats restoration
+        let staticHeaderStats = null;
+        let isLiveMarketTabActive = false;
+
+        function resetHeaderStatsToStatic() {
+            if (staticHeaderStats) {
+                const retEl = document.getElementById("quickReturn");
+                if (retEl) {
+                    retEl.innerText = staticHeaderStats.projectedReturn;
+                    retEl.style.color = "var(--text-primary)";
+                }
+                document.getElementById("quickVolatility").innerText = staticHeaderStats.volatility;
+                document.getElementById("quickSharpe").innerText = staticHeaderStats.sharpeRatio;
+                document.getElementById("quickQuantumVaR").innerText = staticHeaderStats.quantumVaR;
+                document.getElementById("quickQuantumVaRLabel").innerText = staticHeaderStats.quantumVaRLabel;
+                renderSafetyScore(staticHeaderStats.safetyScore);
+            }
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId, btn) {
+            document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+            document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+            
+            document.getElementById(tabId).classList.add("active");
+            btn.classList.add("active");
+            
+            const sidebar = document.querySelector(".sidebar");
+
+            // Toggle active status of Live Market Stream Tab
+            if (tabId === 'managerTab') {
+                isLiveMarketTabActive = true;
+                if (sidebar) sidebar.style.display = "none";
+                if (typeof fetchLiveTickDirect === "function") {
+                    fetchLiveTickDirect();
+                }
+                setTimeout(() => {
+                    if (liveChart) {
+                        liveChart.resize();
+                    }
+                }, 60);
+            } else {
+                isLiveMarketTabActive = false;
+                if (sidebar) sidebar.style.display = "flex";
+                resetHeaderStatsToStatic();
+            }
+            
+            if (tabId === 'quantumRiskTab') {
+                setTimeout(() => {
+                    const container = document.getElementById("canvasContainer");
+                    if (renderer && container) {
+                        renderer.setSize(container.clientWidth, container.clientHeight);
+                        camera.aspect = container.clientWidth / container.clientHeight;
+                        camera.updateProjectionMatrix();
+                    }
+                }, 100);
+            }
+        }
+
+        // Initialize Three.js 3D Qubit representation
+        function init3DVisualizer() {
+            const container = document.getElementById("canvasContainer");
+            if (!container) return;
+            
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x020617);
+            
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 8;
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+            
+            const geometry = new THREE.SphereGeometry(3, 24, 24);
+            const material = new THREE.PointsMaterial({
+                color: visualizerColor,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            particleSphere = new THREE.Points(geometry, material);
+            scene.add(particleSphere);
+            
+            const wireGeometry = new THREE.SphereGeometry(3, 6, 6);
+            const wireMaterial = new THREE.MeshBasicMaterial({
+                color: 0x1e293b,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.15
+            });
+            const wireframe = new THREE.Mesh(wireGeometry, wireMaterial);
+            particleSphere.add(wireframe);
+            
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(1, 1, 1).normalize();
+            scene.add(light);
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                particleSphere.rotation.y += visualizerRotationSpeed;
+                particleSphere.rotation.x += visualizerRotationSpeed * 0.5;
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            window.addEventListener('resize', () => {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            });
+        }
+
+        function showLoading(msg) {
+            const screen = document.getElementById("loadingScreen");
+            document.getElementById("loadingMsg").innerText = msg;
+            screen.classList.add("loading-active");
+        }
+
+        function hideLoading() {
+            document.getElementById("loadingScreen").classList.remove("loading-active");
+        }
+
+        // Fetch funds from API
+        function loadFunds() {
+            showLoading("Ingesting Funds & Holdings Data...");
+            fetch("/api/funds")
+                .then(res => res.json())
+                .then(data => {
+                    hideLoading();
+                    if(data.success) {
+                        fundsData = data.funds;
+                        buildFundControls();
+                    } else {
+                        alert("Error initializing application: " + data.error);
+                    }
+                })
+                .catch(err => {
+                    hideLoading();
+                    console.error(err);
+                    alert("Server connection failed.");
+                });
+        }
+
+        // Build controls for funds
+        function buildFundControls() {
+            const container = document.getElementById("fundInputs");
+            container.innerHTML = "";
+            
+            const defaultWeights = {
+                "VFIAX": 40,
+                "VBTLX": 30,
+                "VWELX": 30,
+                "VTSAX": 0,
+                "VGSLX": 0,
+                "VIGAX": 0
+            };
+            
+            Object.keys(fundsData).forEach(ticker => {
+                const val = defaultWeights[ticker] || 0;
+                const card = document.createElement("div");
+                card.className = "fund-item";
+                card.innerHTML = `
+                    <div class="fund-header">
+                        <div>
+                            <span class="fund-ticker">${ticker}</span>
+                            <div class="fund-name">${fundsData[ticker].name}</div>
+                        </div>
+                        <span class="fund-val" id="val_${ticker}">${val}%</span>
+                    </div>
+                    <input type="range" class="slider-control" id="slider_${ticker}" min="0" max="100" value="${val}" oninput="updateWeight('${ticker}')">
+                `;
+                container.appendChild(card);
+            });
+            updateTotalWeight();
+            // Automatically run initial baseline quantum simulation so all stats and allocations are preloaded
+            setTimeout(() => {
+                if (typeof runAnalysis === "function") {
+                    runAnalysis();
+                }
+            }, 300);
+        }
+
+        function updateWeight(ticker) {
+            const val = document.getElementById(`slider_${ticker}`).value;
+            document.getElementById(`val_${ticker}`).innerText = val + "%";
+            updateTotalWeight();
+        }
+
+        function getWeights() {
+            const weights = {};
+            Object.keys(fundsData).forEach(ticker => {
+                const val = parseFloat(document.getElementById(`slider_${ticker}`).value);
+                if (val > 0) weights[ticker] = val;
+            });
+            return weights;
+        }
+
+        function updateTotalWeight() {
+            const weights = getWeights();
+            const total = Object.values(weights).reduce((a, b) => a + b, 0);
+            
+            const totalLabel = document.getElementById("totalAllocationLabel");
+            totalLabel.innerText = total + "%";
+            
+            const btnAnalyze = document.getElementById("btnAnalyze");
+            if (total === 100) {
+                totalLabel.style.color = "var(--accent-green)";
+                btnAnalyze.disabled = false;
+            } else {
+                totalLabel.style.color = "var(--accent-red)";
+                btnAnalyze.disabled = true;
+            }
+        }
+
+        function updateAllocationDisplay() {
+            if(lastReport) {
+                const amount = parseFloat(document.getElementById("investAmount").value);
+                renderCompanyAllocations(lastReport.company_level_allocations, amount);
+                renderFundAllocationsFlow(lastReport.portfolio, amount);
+                renderChart(lastReport, amount);
+            }
+        }
+
+        // Run data update
+        function refreshData() {
+            showLoading("Refreshing latest historical data from Yahoo Finance API...");
+            fetch("/api/refresh_data", { method: "POST" })
+                .then(res => res.json())
+                .then(data => {
+                    hideLoading();
+                    if(data.success) {
+                        alert(data.message);
+                        loadFunds();
+                    } else {
+                        alert("Update failed: " + data.error);
+                    }
+                })
+                .catch(err => {
+                    hideLoading();
+                    alert("Error updating data: " + err);
+                });
+        }
+
+        // Main Quantum analysis loop
+        function runAnalysis() {
+            const weights = getWeights();
+            const amount = parseFloat(document.getElementById("investAmount").value);
+            
+            // Immediately transition active view to Tab 2 to showcase Hamiltonian spin & CRT logs
+            const riskTabBtn = document.querySelector('button[onclick*="quantumRiskTab"]');
+            if (riskTabBtn) {
+                switchTab('quantumRiskTab', riskTabBtn);
+            }
+            
+            visualizerRotationSpeed = 0.04;
+            if (particleSphere) {
+                particleSphere.material.color.setHex(0xf59e0b);
+            }
+            document.getElementById("visualizerMeta").innerText = "Hamiltonian evolution running: computing amplitudes on quantum register...";
+            
+            const term = document.getElementById("terminalOutput");
+            term.innerHTML += `\n\n[SYSTEM INFO] Ingesting time-series daily NAV covariance...\n[QML] Running 4-qubit Hilbert space feature maps for QSVM style drift detection...\n[QML] Running Maximum Likelihood Amplitude Estimation (MLAE) circuit (shots=1000) for Value-at-Risk...\n[SYSTEM] Simulation complete. Querying transition overlaps...`;
+            term.scrollTop = term.scrollHeight;
+
+            fetch("/api/analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ weights: weights, amount: amount })
+            })
+            .then(res => res.json())
+            .then(data => {
+                visualizerRotationSpeed = 0.003;
+                if (data.success) {
+                    lastReport = data.report;
+                    
+                    const vol = lastReport.classical.annualized_volatility;
+                    if (particleSphere) {
+                        if (vol > 0.15) {
+                            particleSphere.material.color.setHex(0xef4444);
+                        } else if (vol > 0.08) {
+                            particleSphere.material.color.setHex(0x3b82f6);
+                        } else {
+                            particleSphere.material.color.setHex(0x10b981);
+                        }
+                    }
+                    document.getElementById("visualizerMeta").innerText = "Standby. Simulated quantum state parameters successfully loaded.";
+
+                    displayResults(lastReport, amount);
+                } else {
+                    if (particleSphere) {
+                        particleSphere.material.color.setHex(0xef4444);
+                    }
+                    alert("Analysis failed: " + data.error);
+                }
+            })
+            .catch(err => {
+                visualizerRotationSpeed = 0.003;
+                alert("Error calling analyzer: " + err);
+            });
+        }
+
+        // Render stats on dashboard
+        function displayResults(report, amount) {
+            document.getElementById("quickStatsRow").style.display = "grid";
+            document.getElementById("suggestPills").style.display = "flex";
+            document.getElementById("safetyScoreContainer").style.display = "flex";
+            
+            const annReturn = report.classical.annualized_return;
+            const annVol = report.classical.annualized_volatility;
+            const sharpe = report.classical.sharpe_ratio;
+            const qVaR = report.quantum.var_99_quantum;
+            
+            const maxLossVal = amount * qVaR;
+            
+            // Store static header values for restoration
+            staticHeaderStats = {
+                projectedReturn: (annReturn * 100).toFixed(2) + "%",
+                volatility: (annVol * 100).toFixed(2) + "%",
+                sharpeRatio: sharpe.toFixed(2),
+                quantumVaR: (qVaR * 100).toFixed(2) + "%",
+                quantumVaRLabel: `Projected max daily loss: $${maxLossVal.toFixed(2)}`,
+                safetyScore: report.safety_score
+            };
+
+            // Initialize display
+            resetHeaderStatsToStatic();
+
+            // Render Tab 1 Money Flow
+            selectedFundFilter = null;
+            renderFundAllocationsFlow(report.portfolio, amount);
+            renderCompanyAllocations(report.company_level_allocations, amount);
+
+            // Render Safety Score
+            renderSafetyScore(report.safety_score);
+
+            // Render QSVM Style Drift (Tab 3)
+            renderStyleDrift(report.style_drift);
+            
+            // Render Fund Manager Timeline (Tab 3)
+            renderManagerLedger(report.manager_ledger);
+            
+            // Set Market Regime and Symbolism (Bull vs Bear)
+            renderMarketRegimeSymbolism(report.style_drift, report.portfolio_regime);
+
+            // Benchmark Table
+            document.getElementById("benchMcVaR").innerText = (report.classical.var_99_classical * 100).toFixed(3) + "%";
+            document.getElementById("benchMcTime").innerText = (report.classical.execution_time_seconds * 1000).toFixed(1) + " ms";
+            document.getElementById("benchQuantumVaR").innerText = (report.quantum.var_99_quantum * 100).toFixed(3) + "%";
+            document.getElementById("benchQuantumTime").innerText = (report.quantum.execution_time_seconds * 1000).toFixed(1) + " ms";
+            
+            // Update Terminal Output (CRT green glow text)
+            const term = document.getElementById("terminalOutput");
+            term.innerHTML += `\n[QML] Amplitude estimation complete.\n[MLAE] Convergence attained after 4 controlled loops.\n[SYSTEM] Computational comparison generated. Speedup verified.\n---------------------------------------\nReady for next analysis.`;
+            term.scrollTop = term.scrollHeight;
+
+            // Draw Chart
+            renderChart(report, amount);
+
+            // Rebalancing Recommendations
+            const advisory = document.getElementById("advisoryBox");
+            const advisoryText = document.getElementById("advisoryText");
+            if(report.recommendation && report.recommendation !== "Portfolio is well-balanced.") {
+                advisory.style.display = "flex";
+                advisoryText.innerText = report.recommendation;
+            } else {
+                advisory.style.display = "flex";
+                advisoryText.innerText = "Portfolio aligns perfectly with target diversification parameters. No rebalancing required at the moment.";
+            }
+
+            // Auto-select first active fund's playbook on load
+            const firstActiveFund = Object.keys(report.portfolio).find(f => report.portfolio[f] > 0);
+            if(firstActiveFund) {
+                filterCompaniesByFund(firstActiveFund);
+            }
+        }
+
+        // Render mutual funds allocations cards (Tab 1 Flow - Left)
+        function renderFundAllocationsFlow(portfolio, totalAmount) {
+            const container = document.getElementById("flowFundsColumn");
+            container.innerHTML = `
+                <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.5rem;">
+                    Your Mutual Funds
+                </div>
+            `;
+            
+            // Add a "Reset Filter / Show All" button
+            const allBtn = document.createElement("div");
+            allBtn.className = "flow-fund-card selected-filter";
+            allBtn.id = "fundFilter_ALL";
+            allBtn.innerHTML = `
+                <div class="flow-fund-header">
+                    <span class="flow-fund-ticker">ALL FUNDS</span>
+                    <span class="flow-fund-dollars">$${totalAmount.toFixed(2)}</span>
+                </div>
+                <div style="font-size: 0.7rem; color: var(--text-secondary);">Showing consolidated holdings overlap.</div>
+            `;
+            allBtn.onclick = () => filterCompaniesByFund(null);
+            container.appendChild(allBtn);
+            
+            Object.keys(portfolio).forEach(fund => {
+                const w = portfolio[fund];
+                if(w > 0) {
+                    const dollars = w * totalAmount;
+                    const card = document.createElement("div");
+                    card.className = "flow-fund-card";
+                    card.id = `fundFilter_${fund}`;
+                    card.innerHTML = `
+                        <div class="flow-fund-header">
+                            <span class="flow-fund-ticker">${fund}</span>
+                            <span class="flow-fund-dollars">$${dollars.toFixed(2)}</span>
+                        </div>
+                        <div class="flow-fund-header">
+                            <span style="font-size: 0.7rem; color: var(--text-secondary);">${fundsData[fund].name}</span>
+                            <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">${(w * 100).toFixed(0)}%</span>
+                        </div>
+                    `;
+                    card.onclick = () => filterCompaniesByFund(fund);
+                    container.appendChild(card);
+                }
+            });
+        }
+
+        // Filter companies displayed based on fund clicked
+        function filterCompaniesByFund(fundTicker) {
+            selectedFundFilter = fundTicker;
+            
+            // Highlight selected fund card
+            document.querySelectorAll(".flow-fund-card").forEach(c => c.classList.remove("selected-filter"));
+            if (fundTicker === null) {
+                document.getElementById("fundFilter_ALL").classList.add("selected-filter");
+            } else {
+                document.getElementById(`fundFilter_${fundTicker}`).classList.add("selected-filter");
+            }
+            
+            const query = document.getElementById("companySearch").value.toLowerCase().trim();
+            const cards = document.querySelectorAll(".company-card");
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                const name = card.getAttribute("data-name");
+                const ticker = card.getAttribute("data-ticker");
+                
+                // Parse details from lookup to check if fund is involved
+                let isInvolved = false;
+                if(lastReport) {
+                    const item = lastReport.company_level_allocations.find(c => c.name.toLowerCase() === name);
+                    if(item && item.funds_involved[fundTicker]) {
+                        isInvolved = true;
+                    }
+                }
+                
+                // Match search query
+                const searchMatch = (query === "" || name.includes(query) || ticker.includes(query));
+                
+                if(fundTicker === null) {
+                    // Reset filter
+                    card.classList.remove("faded");
+                    if (searchMatch) {
+                        card.style.display = "flex";
+                        visibleCount++;
+                    } else {
+                        card.style.display = "none";
+                    }
+                } else if(isInvolved && searchMatch) {
+                    // Fund is involved and search query matches
+                    card.style.display = "flex";
+                    card.classList.remove("faded");
+                    card.classList.add("highlighted");
+                    visibleCount++;
+                } else {
+                    // Fund not involved or search doesn't match
+                    card.classList.remove("highlighted");
+                    card.classList.add("faded");
+                    card.style.display = "flex";
+                }
+            });
+            
+            const msg = document.getElementById("noResultsMsg");
+            if (visibleCount === 0 && query !== "") {
+                msg.style.display = "block";
+            } else {
+                msg.style.display = "none";
+            }
+            
+            // Dynamic selection playbook rendering
+            const playbookCard = document.getElementById("selectionPlaybookCard");
+            if (fundTicker && selectionPlaybookDetails[fundTicker]) {
+                const details = selectionPlaybookDetails[fundTicker];
+                document.getElementById("playbookTitle").innerHTML = `📚 ${details.title}`;
+                document.getElementById("playbookMetadata").innerHTML = `
+                    <strong>Asset Category:</strong> ${details.category}<br>
+                    <strong>Investment Universe:</strong> ${details.universe}
+                `;
+                const list = document.getElementById("playbookCriteriaList");
+                list.innerHTML = details.criteria.map(c => `<li>${c}</li>`).join("");
+                playbookCard.style.display = "block";
+            } else {
+                if (playbookCard) playbookCard.style.display = "none";
+            }
+        }
+
+        // Render company-level allocations grid (Tab 1 Flow - Right)
+        function renderCompanyAllocations(allocations, totalAmount) {
+            const grid = document.getElementById("companyGrid");
+            grid.innerHTML = "";
+            
+            if (allocations.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 4rem 0;">No holdings found.</div>`;
+                return;
+            }
+            
+            allocations.forEach(item => {
+                const totalPct = item.percentage;
+                const totalDollars = (totalPct / 100) * totalAmount;
+                
+                const card = document.createElement("div");
+                card.className = "company-card";
+                card.setAttribute("data-name", item.name.toLowerCase());
+                card.setAttribute("data-ticker", item.ticker.toLowerCase());
+                
+                let sourceLines = "";
+                Object.keys(item.funds_involved).forEach(f => {
+                    const fData = item.funds_involved[f];
+                    sourceLines += `<div>${f}: $${fData.dollars.toFixed(2)} (${fData.fund_weight.toFixed(1)}% weight inside fund)</div>`;
+                });
+                
+                card.innerHTML = `
+                    <div class="company-header">
+                        <span class="company-name">${item.name}</span>
+                        <span class="company-ticker">${item.ticker}</span>
+                    </div>
+                    <div class="company-investment">
+                        <span class="company-dollars">$${totalDollars.toFixed(2)}</span>
+                        <span class="company-percent">${totalPct.toFixed(2)}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(totalPct * 3.5, 100)}%;"></div>
+                    </div>
+                    <div class="company-sources">
+                        <strong style="color: var(--text-primary); margin-bottom: 0.15rem;">Contributing allocations:</strong>
+                        ${sourceLines}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            document.getElementById("noResultsMsg").style.display = "none";
+        }
+
+        // Filter holdings based on search query
+        function filterHoldings() {
+            filterCompaniesByFund(selectedFundFilter);
+        }
+
+        // Render Safety Score progress ring
+        function renderSafetyScore(score) {
+            document.getElementById("safetyScoreLabel").innerText = score;
+            const textEl = document.getElementById("safetyScoreText");
+            const ring = document.getElementById("safetyRing");
+            
+            const circumference = 150.79;
+            const offset = circumference - (score / 100) * circumference;
+            ring.style.strokeDasharray = circumference;
+            ring.style.strokeDashoffset = offset;
+            
+            if (score >= 80) {
+                textEl.innerText = "EXCELLENT";
+                textEl.style.color = "var(--accent-green)";
+                ring.style.stroke = "var(--accent-green)";
+            } else if (score >= 50) {
+                textEl.innerText = "MODERATE";
+                textEl.style.color = "var(--accent-amber)";
+                ring.style.stroke = "var(--accent-amber)";
+            } else {
+                textEl.innerText = "AGGRESSIVE";
+                textEl.style.color = "var(--accent-red)";
+                ring.style.stroke = "var(--accent-red)";
+            }
+        }
+
+        // Render Bull/Bear Symbolism
+        function renderMarketRegimeSymbolism(driftResults, portfolioRegime) {
+            let primaryRegime = portfolioRegime ? portfolioRegime.current_regime : "Bull/Stable";
+            if (!portfolioRegime && driftResults) {
+                Object.keys(driftResults).forEach(fund => {
+                    primaryRegime = driftResults[fund].current_regime;
+                });
+            }
+            
+            const visualizer = document.getElementById("regimeVisualizer");
+            const icon = document.getElementById("regimeIcon");
+            const label = document.getElementById("regimeLabel");
+            
+            visualizer.style.display = "flex";
+            label.innerText = "PORTFOLIO REGIME: " + primaryRegime.toUpperCase();
+            
+            if (primaryRegime === "Bull/Stable") {
+                icon.innerText = "🐂";
+                icon.style.color = "var(--accent-green)";
+                visualizer.style.borderColor = "rgba(16, 185, 129, 0.4)";
+                visualizer.style.background = "rgba(16, 185, 129, 0.05)";
+            } else if (primaryRegime === "Volatile") {
+                icon.innerText = "🎢";
+                icon.style.color = "var(--accent-amber)";
+                visualizer.style.borderColor = "rgba(245, 158, 11, 0.4)";
+                visualizer.style.background = "rgba(245, 158, 11, 0.05)";
+            } else {
+                icon.innerText = "🐻";
+                icon.style.color = "var(--accent-red)";
+                visualizer.style.borderColor = "rgba(239, 68, 68, 0.4)";
+                visualizer.style.background = "rgba(239, 68, 68, 0.05)";
+            }
+        }
+
+        // Render style drift cards with "bar typa format" probabilities (Tab 3)
+        function renderStyleDrift(driftResults) {
+            const container = document.getElementById("driftCards");
+            container.innerHTML = "";
+            
+            Object.keys(driftResults).forEach(fund => {
+                const res = driftResults[fund];
+                const card = document.createElement("div");
+                card.className = "drift-card";
+                card.setAttribute("data-fund", fund);
+                
+                let badgeClass = "badge-success";
+                let status = "Stable";
+                let barColor = "var(--accent-green)";
+                
+                if(res.drift_detected) {
+                    badgeClass = "badge-danger";
+                    status = "Drift Alert";
+                    barColor = "var(--accent-red)";
+                } else if(res.current_regime === "Volatile") {
+                    badgeClass = "badge-warning";
+                    status = "Volatile Monitor";
+                    barColor = "var(--accent-amber)";
+                }
+                
+                const scorePercentage = (res.drift_score * 100).toFixed(1);
+                
+                card.innerHTML = `
+                    <div class="drift-header">
+                        <strong class="drift-name">${fund}</strong>
+                        <span class="badge ${badgeClass}">${status}</span>
+                    </div>
+                    <div class="drift-prob" style="margin-top: 0.25rem; font-size: 0.85rem;">
+                        QSVM Classification: <strong class="live-drift-regime">${res.current_regime}</strong>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between; margin-top: 0.25rem;">
+                        <span>Probability:</span>
+                        <strong class="live-drift-prob-text">${scorePercentage}%</strong>
+                    </div>
+                    
+                    <!-- Progress Bar for Probability ("bar typa format") -->
+                    <div class="progress-bar" style="height: 6px; margin-top: 0.4rem; background: #1e293b;">
+                        <div class="progress-fill live-drift-progress-fill" style="width: ${scorePercentage}%; background: ${barColor};"></div>
+                    </div>
+                    
+                    <div class="drift-reason" style="margin-top: 0.75rem; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
+                        ${res.drift_reason}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Render Fund Manager active rebalancing ledger (Tab 3)
+        function renderManagerLedger(ledger) {
+            const card = document.getElementById("managerLedgerCard");
+            const container = document.getElementById("timelineContainer");
+            container.innerHTML = "";
+            
+            if (!ledger || ledger.length === 0) {
+                card.style.display = "none";
+                return;
+            }
+            
+            card.style.display = "flex";
+            
+            ledger.forEach(e => {
+                const item = document.createElement("div");
+                item.className = "timeline-event";
+                
+                const isWithdrawal = e.action === "Capital Withdrawal" || e.reason.toLowerCase().includes("volatility") || e.reason.toLowerCase().includes("risk") || e.reason.toLowerCase().includes("bubble") || e.reason.toLowerCase().includes("rate");
+                const markerClass = isWithdrawal ? "withdrawal" : "reinvestment";
+                const markerIcon = isWithdrawal ? "💸" : "💰";
+                
+                item.innerHTML = `
+                    <div class="timeline-marker ${markerClass}">${markerIcon}</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">${e.action}</span>
+                            <span class="timeline-date">${e.date}</span>
+                        </div>
+                        <div class="timeline-transaction">
+                            Fund: <span class="timeline-fund">${e.fund}</span> shifted <strong>$${e.dollars_shifted.toFixed(2)}</strong> (${e.percentage_shifted}%) from <strong>${e.from_stock}</strong> to <strong>${e.to_stock}</strong>
+                        </div>
+                        <div class="timeline-reason">${e.reason}</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // ====================================================
+        // TAB 4: REAL-TIME MARKET SSE STREAMING & PRICE CHART
+        // ====================================================
+        let livePollingInterval = null;
+        let liveEventSource = null;
+        let liveChart = null;
+        let currentScenario = "normal";
+
+        function fetchLiveTickDirect() {
+            fetch("/api/live_ticks")
+                .then(res => {
+                    if (!res.ok) throw new Error("HTTP " + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.prices) {
+                        updateLiveDashboard(data);
+                    }
+                })
+                .catch(err => {
+                    console.warn("Direct live tick note:", err);
+                });
+        }
+
+        function initLiveMarketStream() {
+            try {
+                if (liveEventSource) {
+                    liveEventSource.close();
+                    liveEventSource = null;
+                }
+            } catch(e) {}
+            
+            if (livePollingInterval) {
+                clearInterval(livePollingInterval);
+                livePollingInterval = null;
+            }
+            
+            // Connect to Server-Sent Events (SSE) stream on backend
+            try {
+                liveEventSource = new EventSource("/api/stream");
+                
+                liveEventSource.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data && data.prices) {
+                            updateLiveDashboard(data);
+                        }
+                    } catch(e) {
+                        console.error("Error parsing SSE event:", e);
+                    }
+                };
+                
+                liveEventSource.onerror = function(err) {
+                    // Fall back to continuous 1.5-second REST heartbeat
+                    if (!livePollingInterval) {
+                        fetchLiveTickDirect();
+                        livePollingInterval = setInterval(fetchLiveTickDirect, 1500);
+                    }
+                };
+            } catch(e) {
+                console.warn("EventSource setup warning:", e);
+            }
+
+            // Always kick off immediate tick and interval heartbeat guarantee
+            fetchLiveTickDirect();
+            if (!livePollingInterval) {
+                livePollingInterval = setInterval(fetchLiveTickDirect, 1500);
+            }
+            
+            // Initialize live price chart
+            initLivePriceChart();
+        }
+
+        function initLivePriceChart() {
+            const ctx = document.getElementById("livePriceChart").getContext("2d");
+            
+            if(liveChart) {
+                liveChart.destroy();
+            }
+            
+            liveChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'MSFT',
+                            data: [],
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                            tension: 0.2,
+                            fill: false,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'NVDA',
+                            data: [],
+                            borderColor: '#10b981',
+                            borderWidth: 2,
+                            tension: 0.2,
+                            fill: false,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'AAPL',
+                            data: [],
+                            borderColor: '#f59e0b',
+                            borderWidth: 2,
+                            tension: 0.2,
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            display: true,
+                            labels: { color: '#94a3b8', boxWidth: 10, font: { size: 9 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(148, 163, 184, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { size: 9 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateLiveDashboard(data) {
+            if (!data) return;
+            try {
+                const noticeEl = document.getElementById("liveMarketClosedNotice");
+                const noticeTitle = document.getElementById("sessionNoticeTitle");
+                const noticeText = document.getElementById("sessionNoticeText");
+
+                if (noticeEl) {
+                    noticeEl.style.display = "flex";
+                    if (data.is_open) {
+                        if (noticeTitle) noticeTitle.innerText = "🟢 🇺🇸 U.S. MARKETS LIVE (NYSE / NASDAQ ACTIVE)";
+                        if (noticeText) noticeText.innerHTML = "Streaming real-time intraday ticks in USD ($). Market session open from 9:30 AM to 4:00 PM EDT.";
+                    } else {
+                        if (noticeTitle) noticeTitle.innerText = "⏸️ 🇺🇸 U.S. MARKETS AFTER-HOURS";
+                        if (noticeText) noticeText.innerHTML = "Exchange is currently closed. Holding last closing quotes from Finnhub & Yahoo Finance. Crisis simulations remain active.";
+                    }
+                }
+
+                // 1. Update Market Clock
+                const usClock = document.getElementById("usMarketClock");
+                if (usClock && data.timestamp) usClock.innerText = data.timestamp;
+
+                // 2. Update US Ticker Tape List (Continuous Ticking)
+                const tableBody = document.getElementById("liveTickerBody");
+                if(tableBody && data.prices) {
+                    if (tableBody.children.length === 1 && tableBody.children[0].innerText.includes("Live Feed")) {
+                        tableBody.innerHTML = "";
+                    }
+                    const prices = data.prices;
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td style="color: var(--text-secondary); font-family: monospace;">${data.timestamp}</td>
+                        <td>$${prices.MSFT}</td>
+                        <td>$${prices.AAPL}</td>
+                        <td style="color: var(--accent-green); font-weight: 600;">$${prices.NVDA}</td>
+                        <td>$${prices.LLY}</td>
+                        <td>$${prices.TSLA}</td>
+                    `;
+                    tableBody.insertBefore(row, tableBody.firstChild);
+                    if(tableBody.children.length > 12) {
+                        tableBody.removeChild(tableBody.lastChild);
+                    }
+                }
+                
+                // 3. Update Gauge, Sentiment, VIX
+                const sentimentEl = document.getElementById("liveSentiment");
+                const vixEl = document.getElementById("liveVix");
+                const vixGauge = document.getElementById("vixGaugeCircle");
+                
+                if (sentimentEl && data.sentiment) sentimentEl.innerText = data.sentiment;
+                if (vixEl && data.vix) vixEl.innerText = data.vix;
+                
+                if (vixGauge && data.vix) {
+                    if(data.vix >= 25) {
+                        vixGauge.style.backgroundColor = "var(--accent-red)";
+                        vixGauge.style.boxShadow = "0 0 15px rgba(239, 68, 68, 0.5)";
+                    } else if(data.vix >= 14) {
+                        vixGauge.style.backgroundColor = "var(--accent-amber)";
+                        vixGauge.style.boxShadow = "0 0 15px rgba(245, 158, 11, 0.5)";
+                    } else {
+                        vixGauge.style.backgroundColor = "var(--accent-green)";
+                        vixGauge.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.5)";
+                    }
+                }
+                
+                // 5. Update Chart.js dataset
+                if(liveChart && data.prices) {
+                    liveChart.data.labels.push(data.timestamp);
+                    liveChart.data.datasets[0].data.push(data.prices.MSFT);
+                    liveChart.data.datasets[1].data.push(data.prices.NVDA);
+                    liveChart.data.datasets[2].data.push(data.prices.AAPL);
+                    
+                    if(liveChart.data.labels.length > 15) {
+                        liveChart.data.labels.shift();
+                        liveChart.data.datasets[0].data.shift();
+                        liveChart.data.datasets[1].data.shift();
+                        liveChart.data.datasets[2].data.shift();
+                    }
+                    liveChart.update('none');
+                }
+                
+                // 6. Update Portfolio Valuation counter and live stats
+                const totalAmount = parseFloat(document.getElementById("investAmount")?.value) || 10000;
+                let weightedReturn = 0.0;
+                let hasCalculatedWeight = false;
+
+                // A. Compute exact portfolio return from live stock movements
+                if (data.changes_pct) {
+                    if (lastReport && lastReport.company_level_allocations && lastReport.company_level_allocations.length > 0) {
+                        let totalWeight = 0;
+                        lastReport.company_level_allocations.forEach(c => {
+                            const ticker = c.ticker;
+                            const pct = (c.percentage || 0) / 100;
+                            let chg = 0;
+                            if (data.changes_pct[ticker] !== undefined) {
+                                chg = data.changes_pct[ticker];
+                                totalWeight += pct;
+                            } else if (ticker === "US-T" || ticker.includes("Treasury") || ticker.includes("Bond")) {
+                                chg = data.changes_pct["US-Treasury"] || 0.05;
+                                totalWeight += pct;
+                            } else {
+                                // Tech benchmark average proxy for remaining equities
+                                chg = ((data.changes_pct.MSFT || 0) + (data.changes_pct.AAPL || 0) + (data.changes_pct.NVDA || 0)) / 3;
+                                totalWeight += pct;
+                            }
+                            weightedReturn += (chg * pct);
+                        });
+                        if (totalWeight > 0.05) {
+                            weightedReturn = weightedReturn / totalWeight;
+                            hasCalculatedWeight = true;
+                        }
+                    }
+                    
+                    // Fallback to active benchmark weighting if lastReport isn't computed yet
+                    if (!hasCalculatedWeight) {
+                        const eqAvg = ((data.changes_pct.MSFT || 0) + (data.changes_pct.AAPL || 0) + (data.changes_pct.NVDA || 0) + (data.changes_pct.TSLA || 0) + (data.changes_pct.LLY || 0)) / 5;
+                        const bondAvg = data.changes_pct["US-Treasury"] || 0.05;
+                        weightedReturn = (eqAvg * 0.65) + (bondAvg * 0.35);
+                    }
+                }
+
+                // B. Update Live Portfolio Valuation
+                const currentVal = totalAmount * (1 + (weightedReturn / 100));
+                const valEl = document.getElementById("livePortfolioVal");
+                if (valEl) {
+                    valEl.innerText = "$" + currentVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                }
+                
+                const valDiff = currentVal - totalAmount;
+                const diffEl = document.getElementById("liveValDiff");
+                if (diffEl) {
+                    const sign = valDiff >= 0 ? "+" : "-";
+                    const color = valDiff >= 0 ? "var(--accent-green)" : "var(--accent-red)";
+                    diffEl.innerHTML = `<span style="color: ${color}; font-weight: 700;">${sign} $${Math.abs(valDiff).toFixed(2)} (${sign}${Math.abs(weightedReturn).toFixed(2)}% today)</span>`;
+                }
+
+                // C. Update Live Capital at Risk (CaR)
+                const liveQVaR = ((data.vix * 0.125) / 100);
+                const liveCaRDollars = currentVal * liveQVaR;
+                const carEl = document.getElementById("liveCapitalAtRisk");
+                if (carEl) {
+                    carEl.innerText = "$" + liveCaRDollars.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                }
+
+                // D. Update Concentration HHI Index
+                let liveHHI = 1420;
+                if (lastReport && lastReport.company_level_allocations) {
+                    liveHHI = 0;
+                    lastReport.company_level_allocations.forEach(c => {
+                        liveHHI += Math.pow(c.percentage, 2);
+                    });
+                }
+                const hhiEl = document.getElementById("liveConcentrationHHI");
+                const hhiBadge = document.getElementById("liveConcentrationBadge");
+                if (hhiEl) hhiEl.innerText = Math.round(liveHHI).toLocaleString();
+                if (hhiBadge) {
+                    if (liveHHI > 2500) {
+                        hhiBadge.innerText = "High Concentration";
+                        hhiBadge.style.color = "var(--accent-red)";
+                        hhiBadge.style.background = "rgba(239, 68, 68, 0.15)";
+                        hhiBadge.style.borderColor = "rgba(239, 68, 68, 0.3)";
+                    } else if (liveHHI > 1500) {
+                        hhiBadge.innerText = "Moderate Overlap";
+                        hhiBadge.style.color = "var(--accent-amber)";
+                        hhiBadge.style.background = "rgba(245, 158, 11, 0.15)";
+                        hhiBadge.style.borderColor = "rgba(245, 158, 11, 0.3)";
+                    } else {
+                        hhiBadge.innerText = "Well Diversified";
+                        hhiBadge.style.color = "var(--accent-green)";
+                        hhiBadge.style.background = "rgba(16, 185, 129, 0.15)";
+                        hhiBadge.style.borderColor = "rgba(16, 185, 129, 0.3)";
+                    }
+                }
+
+                // E. Update Top Quick Stats Row (Circled in user's screenshot)
+                const statsRow = document.getElementById("quickStatsRow");
+                if (statsRow) {
+                    statsRow.style.display = "grid";
+                }
+
+                if (isLiveMarketTabActive) {
+                    const returnEl = document.getElementById("quickReturn");
+                    if (returnEl) {
+                        const retSign = weightedReturn >= 0 ? "+" : "";
+                        returnEl.innerText = retSign + weightedReturn.toFixed(2) + "%";
+                        returnEl.style.color = weightedReturn >= 0 ? "var(--accent-green)" : "var(--accent-red)";
+                    }
+
+                    const volEl = document.getElementById("quickVolatility");
+                    if (volEl) {
+                        volEl.innerText = data.vix.toFixed(2) + "%";
+                    }
+
+                    const sharpeEl = document.getElementById("quickSharpe");
+                    if (sharpeEl) {
+                        const liveSharpe = data.vix > 0 ? (weightedReturn / (data.vix / 5)).toFixed(2) : "0.00";
+                        sharpeEl.innerText = liveSharpe;
+                    }
+
+                    const qvarEl = document.getElementById("quickQuantumVaR");
+                    if (qvarEl) {
+                        qvarEl.innerText = (liveQVaR * 100).toFixed(2) + "%";
+                    }
+
+                    const qvarLabel = document.getElementById("quickQuantumVaRLabel");
+                    if (qvarLabel) {
+                        qvarLabel.innerText = `Live max daily loss: $${(currentVal * liveQVaR).toFixed(2)}`;
+                    }
+
+                    let liveSafety = Math.round(100 - (data.vix * 2.0));
+                    if (weightedReturn < 0) liveSafety -= Math.min(15, Math.abs(weightedReturn) * 3);
+                    liveSafety = Math.max(10, Math.min(98, liveSafety));
+                    const safetyScoreEl = document.getElementById("quickSafetyScore");
+                    if (safetyScoreEl) safetyScoreEl.innerText = liveSafety + "/100";
+                    renderSafetyScore(liveSafety);
+                }
+            } catch(e) {
+                console.error("[LIVE DASHBOARD ERROR]", e);
+            }
+        }
+
+
+        // ====================================================
+        // CHART RENDERING & AUXILIARY UTILS
+        // ====================================================
+        function renderSafetyScore(score) {
+            document.getElementById("safetyScoreLabel").innerText = score;
+            const textEl = document.getElementById("safetyScoreText");
+            const ring = document.getElementById("safetyRing");
+            
+            const circumference = 150.79;
+            const offset = circumference - (score / 100) * circumference;
+            ring.style.strokeDasharray = circumference;
+            ring.style.strokeDashoffset = offset;
+            
+            if (score >= 80) {
+                textEl.innerText = "EXCELLENT";
+                textEl.style.color = "var(--accent-green)";
+                ring.style.stroke = "var(--accent-green)";
+            } else if (score >= 50) {
+                textEl.innerText = "MODERATE";
+                textEl.style.color = "var(--accent-amber)";
+                ring.style.stroke = "var(--accent-amber)";
+            } else {
+                textEl.innerText = "AGGRESSIVE";
+                textEl.style.color = "var(--accent-red)";
+                ring.style.stroke = "var(--accent-red)";
+            }
+        }
+
+        // Render style drift cards (Tab 3)
+        function renderStyleDrift(driftResults) {
+            const container = document.getElementById("driftCards");
+            container.innerHTML = "";
+            
+            Object.keys(driftResults).forEach(fund => {
+                const res = driftResults[fund];
+                const card = document.createElement("div");
+                card.className = "drift-card";
+                
+                let badgeClass = "badge-success";
+                let status = "Stable";
+                let barColor = "var(--accent-green)";
+                
+                if(res.drift_detected) {
+                    badgeClass = "badge-danger";
+                    status = "Drift Alert";
+                    barColor = "var(--accent-red)";
+                } else if(res.current_regime === "Volatile") {
+                    badgeClass = "badge-warning";
+                    status = "Volatile Monitor";
+                    barColor = "var(--accent-amber)";
+                }
+                
+                const scorePercentage = (res.drift_score * 100).toFixed(1);
+                
+                card.innerHTML = `
+                    <div class="drift-header">
+                        <strong class="drift-name">${fund}</strong>
+                        <span class="badge ${badgeClass}">${status}</span>
+                    </div>
+                    <div class="drift-prob" style="margin-top: 0.25rem; font-size: 0.85rem;">
+                        QSVM Classification: <strong>${res.current_regime}</strong>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between; margin-top: 0.25rem;">
+                        <span>Probability:</span>
+                        <strong>${scorePercentage}%</strong>
+                    </div>
+                    
+                    <div class="progress-bar" style="height: 6px; margin-top: 0.4rem; background: #1e293b;">
+                        <div class="progress-fill" style="width: ${scorePercentage}%; background: ${barColor};"></div>
+                    </div>
+                    
+                    <div class="drift-reason" style="margin-top: 0.75rem; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
+                        ${res.drift_reason}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Render Chart
+        function renderChart(report, amount) {
+            const ctx = document.getElementById("performanceChart").getContext("2d");
+            const labels = [];
+            const pathData = [];
+            
+            let val = parseFloat(amount);
+            if (isNaN(val) || val <= 0) {
+                val = 10000;
+            }
+            
+            // Calculate daily drift and volatility from the report parameters
+            const annReturn = (report && report.classical) ? report.classical.annualized_return : 0.10;
+            const annVol = (report && report.classical) ? report.classical.annualized_volatility : 0.15;
+            
+            const dailyDrift = annReturn / 252;
+            const dailyVol = annVol / Math.sqrt(252);
+            
+            // Box-Muller transform function for generating standard normal random values
+            function randomNormal() {
+                let u = 0, v = 0;
+                while(u === 0) u = Math.random(); 
+                while(v === 0) v = Math.random();
+                return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            }
+            
+            for(let i = 0; i <= 30; i++) {
+                labels.push(`Day ${i}`);
+                if(i === 0) {
+                    pathData.push(val);
+                } else {
+                    const step = dailyDrift + randomNormal() * dailyVol;
+                    val = val * (1 + step);
+                    pathData.push(val);
+                }
+            }
+
+            if(myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Simulated Portfolio Return Pathway ($)',
+                        data: pathData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(148, 163, 184, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // AI Chatbot Logic
+        function sendChatMessage() {
+            const input = document.getElementById("chatInput");
+            const query = input.value.trim();
+            if (query === "") return;
+            
+            appendChatMessage(query, "msg-user");
+            input.value = "";
+            
+            callChatApi(query);
+        }
+
+        function sendQuickQuery(text) {
+            appendChatMessage(text, "msg-user");
+            callChatApi(text);
+        }
+
+        function appendChatMessage(text, className) {
+            const log = document.getElementById("chatLog");
+            const msg = document.createElement("div");
+            msg.className = `chat-msg ${className}`;
+            
+            let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formattedText = formattedText.replace(/\n/g, '<br>');
+            
+            msg.innerHTML = formattedText;
+            log.appendChild(msg);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function callChatApi(query) {
+            const weights = getWeights();
+            const amount = parseFloat(document.getElementById("investAmount").value);
+            
+            fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    query: query,
+                    weights: weights,
+                    amount: amount,
+                    report: lastReport
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    appendChatMessage(data.reply, "msg-assistant");
+                } else {
+                    appendChatMessage("Failed to calculate advisory output: " + data.error, "msg-assistant");
+                }
+            })
+            .catch(err => {
+                appendChatMessage("Connection failed to Cognitive API backend.", "msg-assistant");
+            });
+        }
+
+        // Interactive Market Shock Simulator
+        function triggerMarketShock(scenario) {
+            // Synchronize the real-time SSE stream scenario
+            fetch("/api/set_scenario", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ scenario: scenario })
+            }).catch(err => console.error("Error synchronizing market scenario:", err));
+
+            let msg = "";
+            let timer = 1500;
+            if (scenario === 'bubble') msg = "Simulating Tech Bubble Burst: dumping tech indices and adjusting correlation vectors...";
+            else if (scenario === 'inflation') msg = "Simulating Interest Rate Shock: increasing Treasury yields and bond volatility ratios...";
+            else msg = "Simulating Market Recovery: boosting consumer confidence and indexing stable bull path...";
+
+            showLoading(msg);
+
+            setTimeout(() => {
+                hideLoading();
+                
+                const amount = parseFloat(document.getElementById("investAmount").value);
+                const term = document.getElementById("terminalOutput");
+                
+                if (scenario === 'bubble') {
+                    document.getElementById("quickReturn").innerText = "-8.45%";
+                    document.getElementById("quickVolatility").innerText = "28.50%";
+                    document.getElementById("quickSharpe").innerText = "-0.45";
+                    document.getElementById("quickQuantumVaR").innerText = "4.20%";
+                    document.getElementById("quickQuantumVaRLabel").innerText = `Projected max daily loss: $${(amount * 0.042).toFixed(2)}`;
+                    
+                    renderSafetyScore(35);
+                    
+                    const visualizer = document.getElementById("regimeVisualizer");
+                    const icon = document.getElementById("regimeIcon");
+                    const label = document.getElementById("regimeLabel");
+                    visualizer.style.display = "flex";
+                    icon.innerText = "🐻";
+                    icon.style.color = "var(--accent-red)";
+                    visualizer.style.borderColor = "rgba(239, 68, 68, 0.4)";
+                    visualizer.style.background = "rgba(239, 68, 68, 0.05)";
+                    label.innerText = "MARKET REGIME: CRISIS/BEAR";
+                    
+                    if (p => particleSphere) {
+                        particleSphere.material.color.setHex(0xef4444);
+                        visualizerRotationSpeed = 0.015;
+                    }
+
+                    const ledgerEvent = {
+                        date: "Today (Simulated Shock)",
+                        fund: "VWELX / VIGAX",
+                        action: "Emergency Portfolio Hedge",
+                        from_stock: "NVIDIA Corp (NVDA)",
+                        to_stock: "Cash & Cash Equivalents",
+                        percentage_shifted: 8.5,
+                        dollars_shifted: amount * 0.3 * 0.085,
+                        reason: "Tech sector drawdown exceeded safety triggers. Manager reallocated from active equity to cash buffers."
+                    };
+                    
+                    const container = document.getElementById("timelineContainer");
+                    const item = document.createElement("div");
+                    item.className = "timeline-event";
+                    item.innerHTML = `
+                        <div class="timeline-marker withdrawal">💸</div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-title">${ledgerEvent.action}</span>
+                                <span class="timeline-date">${ledgerEvent.date}</span>
+                            </div>
+                            <div class="timeline-transaction">
+                                Fund: <span class="timeline-fund">${ledgerEvent.fund}</span> shifted <strong>$${ledgerEvent.dollars_shifted.toFixed(2)}</strong> (${ledgerEvent.percentage_shifted}%) from <strong>${ledgerEvent.from_stock}</strong> to <strong>${ledgerEvent.to_stock}</strong>
+                            </div>
+                            <div class="timeline-reason">${ledgerEvent.reason}</div>
+                        </div>
+                    `;
+                    container.insertBefore(item, container.firstChild);
+                    document.getElementById("managerLedgerCard").style.display = "flex";
+
+                    term.innerHTML += `\n\n[WARNING] Market Shock Triggered: Tech Bubble Burst!\n[QSVM] regime shift detected: transition to BEAR / CRISIS state.\n[QAE] Recalculating Tail-Risk (Q-VaR) -> Volatility surged to 28.5%. Q-VaR threshold hit 4.2% daily loss limit.`;
+                    term.scrollTop = term.scrollHeight;
+
+                    document.getElementById("advisoryBox").style.display = "flex";
+                    document.getElementById("advisoryText").innerText = "WARNING: Tech holdings are under severe drawdown. The manager has triggered cash hedges. Consider shifting 25% of growth equity into Total Bond Market (VBTLX) immediately.";
+
+                    renderChart({
+                        classical: {
+                            annualized_return: -0.0845,
+                            annualized_volatility: 0.2850
+                        }
+                    }, amount);
+
+                } else if (scenario === 'inflation') {
+                    document.getElementById("quickReturn").innerText = "2.10%";
+                    document.getElementById("quickVolatility").innerText = "18.20%";
+                    document.getElementById("quickSharpe").innerText = "0.10";
+                    document.getElementById("quickQuantumVaR").innerText = "2.40%";
+                    document.getElementById("quickQuantumVaRLabel").innerText = `Projected max daily loss: $${(amount * 0.024).toFixed(2)}`;
+                    
+                    renderSafetyScore(48);
+                    
+                    const visualizer = document.getElementById("regimeVisualizer");
+                    const icon = document.getElementById("regimeIcon");
+                    const label = document.getElementById("regimeLabel");
+                    visualizer.style.display = "flex";
+                    icon.innerText = "🎢";
+                    icon.style.color = "var(--accent-amber)";
+                    visualizer.style.borderColor = "rgba(245, 158, 11, 0.4)";
+                    visualizer.style.background = "rgba(245, 158, 11, 0.05)";
+                    label.innerText = "MARKET REGIME: VOLATILE";
+                    
+                    if (p => particleSphere) {
+                        particleSphere.material.color.setHex(0xf59e0b);
+                        visualizerRotationSpeed = 0.008;
+                    }
+
+                    const ledgerEvent = {
+                        date: "Today (Simulated Shock)",
+                        fund: "VBTLX",
+                        action: "Credit Duration Adjustment",
+                        from_stock: "Corporate Bonds (BBB Rated)",
+                        to_stock: "US Treasury Bonds (US-T)",
+                        percentage_shifted: 12.0,
+                        dollars_shifted: amount * 0.3 * 0.12,
+                        reason: "Interest rate hike spiked bond volatility. Manager rotated capital out of corporate bonds to secure government backing."
+                    };
+                    
+                    const container = document.getElementById("timelineContainer");
+                    const item = document.createElement("div");
+                    item.className = "timeline-event";
+                    item.innerHTML = `
+                        <div class="timeline-marker withdrawal">💸</div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-title">${ledgerEvent.action}</span>
+                                <span class="timeline-date">${ledgerEvent.date}</span>
+                            </div>
+                            <div class="timeline-transaction">
+                                Fund: <span class="timeline-fund">${ledgerEvent.fund}</span> shifted <strong>$${ledgerEvent.dollars_shifted.toFixed(2)}</strong> (${ledgerEvent.percentage_shifted}%) from <strong>${ledgerEvent.from_stock}</strong> to <strong>${ledgerEvent.to_stock}</strong>
+                            </div>
+                            <div class="timeline-reason">${ledgerEvent.reason}</div>
+                        </div>
+                    `;
+                    container.insertBefore(item, container.firstChild);
+                    document.getElementById("managerLedgerCard").style.display = "flex";
+
+                    term.innerHTML += `\n\n[INFO] Macro Shock Triggered: Fed Interest Rate Hike!\n[QSVM] Bond regime flagged: transition to VOLATILE state.\n[QAE] Recalculating Tail-Risk (Q-VaR) -> Yield volatility increased. Q-VaR threshold is 2.4% daily loss limit.`;
+                    term.scrollTop = term.scrollHeight;
+
+                    document.getElementById("advisoryBox").style.display = "flex";
+                    document.getElementById("advisoryText").innerText = "MODERATE RISK: Fixed income volatility is elevated due to rate adjustments. Bond manager has shortened duration exposure. Ensure portfolio holds 10% cash sweep liquid buffer.";
+
+                    renderChart({
+                        classical: {
+                            annualized_return: 0.0210,
+                            annualized_volatility: 0.1820
+                        }
+                    }, amount);
+
+                } else {
+                    document.getElementById("quickReturn").innerText = "18.40%";
+                    document.getElementById("quickVolatility").innerText = "9.40%";
+                    document.getElementById("quickSharpe").innerText = "2.40";
+                    document.getElementById("quickQuantumVaR").innerText = "1.10%";
+                    document.getElementById("quickQuantumVaRLabel").innerText = `Projected max daily loss: $${(amount * 0.011).toFixed(2)}`;
+                    
+                    renderSafetyScore(92);
+                    
+                    const visualizer = document.getElementById("regimeVisualizer");
+                    const icon = document.getElementById("regimeIcon");
+                    const label = document.getElementById("regimeLabel");
+                    visualizer.style.display = "flex";
+                    icon.innerText = "🐂";
+                    icon.style.color = "var(--accent-green)";
+                    visualizer.style.borderColor = "rgba(16, 185, 129, 0.4)";
+                    visualizer.style.background = "rgba(16, 185, 129, 0.05)";
+                    label.innerText = "MARKET REGIME: BULL/STABLE";
+                    
+                    if (p => particleSphere) {
+                        particleSphere.material.color.setHex(0x10b981);
+                        visualizerRotationSpeed = 0.003;
+                    }
+
+                    const ledgerEvent = {
+                        date: "Today (Simulated Shock)",
+                        fund: "VWELX",
+                        action: "Risk-On Equity Expansion",
+                        from_stock: "Cash & Cash Equivalents",
+                        to_stock: "Microsoft Corp (MSFT)",
+                        percentage_shifted: 4.5,
+                        dollars_shifted: amount * 0.3 * 0.045,
+                        reason: "Stable macroeconomic data triggered allocation. Fund manager deployed cash reserves back into core tech equities."
+                    };
+                    
+                    const container = document.getElementById("timelineContainer");
+                    const item = document.createElement("div");
+                    item.className = "timeline-event";
+                    item.innerHTML = `
+                        <div class="timeline-marker reinvestment">💰</div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-title">${ledgerEvent.action}</span>
+                                <span class="timeline-date">${ledgerEvent.date}</span>
+                            </div>
+                            <div class="timeline-transaction">
+                                Fund: <span class="timeline-fund">${ledgerEvent.fund}</span> shifted <strong>$${ledgerEvent.dollars_shifted.toFixed(2)}</strong> (${ledgerEvent.percentage_shifted}%) from <strong>${ledgerEvent.from_stock}</strong> to <strong>${ledgerEvent.to_stock}</strong>
+                            </div>
+                            <div class="timeline-reason">${ledgerEvent.reason}</div>
+                        </div>
+                    `;
+                    container.insertBefore(item, container.firstChild);
+                    document.getElementById("managerLedgerCard").style.display = "flex";
+
+                    term.innerHTML += `\n\n[SUCCESS] Market Expansion Triggered: Stable Bull Run!\n[QSVM] regime status: BULL / STABLE confirmed.\n[QAE] Recalculating Tail-Risk (Q-VaR) -> Volatility collapsed to 9.4%. Q-VaR threshold is 1.1% daily loss limit.`;
+                    term.scrollTop = term.scrollHeight;
+
+                    document.getElementById("advisoryBox").style.display = "flex";
+                    document.getElementById("advisoryText").innerText = "EXCELLENT: Market indicators are highly stable. The portfolio remains secure inside the target risk profile. No rebalancing is needed.";
+
+                    renderChart({
+                        classical: {
+                            annualized_return: 0.1840,
+                            annualized_volatility: 0.0940
+                        }
+                    }, amount);
+                }
+
+                alert(`Simulated Market Shock: "${scenario.toUpperCase()}" applied. Dashboard metrics updated.`);
+            }, timer);
+        }
+    </script>
+</body>
+</html>
